@@ -1,0 +1,70 @@
+<katana-card>
+    <div #formRef>
+
+    <form #formSignIn="ngForm">
+        <div class="form-group">
+          <label for="Name">Name:</label>
+          <input type="text" validation-name="name" class="form-control" id="Name" [(ngModel)]="item.name"
+            name="name">
+        </div>
+        <div class="form-group">
+          <label for="Name">Description:</label>
+          <input type="text" validation-name="Description" class="form-control" id="Description" [(ngModel)]="item.Description"
+            name="Description">
+        </div>
+        <div class="form-group">
+          <label for="Name">Tag:</label>
+          <input type="text" validation-name="Tag" class="form-control" id="Tag" [(ngModel)]="item.tags"
+            name="Tag">
+        </div>
+        <div class="form-group">
+          <label for="Name">Url:</label>
+          <input type="text" validation-name="URL" class="form-control" id="URL" [(ngModel)]="item.url"
+            name="URL">
+        </div>
+        <div class="form-group">
+          <label for="Name">Protocol:</label>
+          <input type="text" validation-name="protocol" class="form-control" id="Protocol" [(ngModel)]="item.protocol"
+            name="protocol">
+        </div>
+        <div class="form-group">
+          <label for="Name">Host:</label>
+          <input type="text" validation-name="host" class="form-control" id="Host" [(ngModel)]="item.host"
+            name="Host">
+        </div>
+        <div class="form-group">
+          <label for="Name">Port:</label>
+          <input type="number" validation-name="port" class="form-control" id="Port" [(ngModel)]="item.port"
+            name="Port">
+        </div>
+        <div class="form-group">
+          <label for="Name">Path:</label>
+          <input type="text" validation-name="path" class="form-control" id="Path" [(ngModel)]="item.path"
+            name="Path">
+        </div>
+        <div class="form-group">
+          <label for="Name">Retries:</label>
+          <input type="text" validation-name="Retries" class="form-control" id="Retries" [(ngModel)]="item.Retries"
+            name="Retries">
+        </div>
+        <div class="form-group">
+          <label for="Name">Connect timeout:</label>
+          <input type="text"  validation-name="Connect" class="form-control" id="Connect" [(ngModel)]="item.Connect"
+            name="Connect">
+        </div>
+        <div class="form-group">
+          <label for="Name">Write timeout:</label>
+          <input type="text" validation-name="Write" class="form-control" id="Write" [(ngModel)]="item.Write"
+            name="Write">
+        </div>
+        <!-- <div class="form-group">
+            <label for="Name">Write timeout:</label>
+            <input type="text" validation-name="Write" class="form-control" id="Write" [(ngModel)]="item.Write"
+              name="Write">
+          </div> -->
+     
+        <button type="button" class="btn btn-primary" (click)="PostService();"
+          [disabled]="formSignIn.invalid">Choose</button>
+      </form>
+      </div>
+</katana-card>
