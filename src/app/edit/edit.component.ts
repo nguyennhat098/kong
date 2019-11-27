@@ -54,7 +54,6 @@ export class EditComponent implements OnInit {
         validationName: "Name",
         valueResolver: () => this.item.name,
         rules: [
-          new RequiredValidationRule(),
           new CustomValidationRule(value => {
             return this.routerService.validateName(value);
           }),

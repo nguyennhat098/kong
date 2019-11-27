@@ -34,10 +34,7 @@ export class ListDemo1Component implements OnInit {
       this.tableTemplate.reload();
     });
   }
-  exportAsXLSX(): void {
-    this.routerService.exportAsExcel(this.data, 'sample');
 
-  }
   ngOnInit(): void {
     this.getData();
     // this.http.get('http://192.168.110.46:8001/services').subscribe((res: any) => {
@@ -80,7 +77,8 @@ export class ListDemo1Component implements OnInit {
           customClass: 'primary',
           title: () => 'Export Excel',
           executeAsync: () => {
-            this.exportAsXLSX();
+            this.routerService.exportAsExcel(this.data, 'sample');
+
           },
         },
         {
@@ -94,7 +92,6 @@ export class ListDemo1Component implements OnInit {
               title: 'IMPORT EXCEL',
               validationKey: 'ImportExcelComponent',
               acceptCallback: items => {
-                console.log(items)
                 for (let index = 0; index < items.length; index++) {
                   const element = items[index];
                   var item = new RouterViewModel();
@@ -110,7 +107,6 @@ export class ListDemo1Component implements OnInit {
                   item.service.id = element.service;
                   item.strip_path = element.strip_path;
                   item.tags = element.tags ? element.tags.split(',') : [];
-                  console.log(item)
                   this.routerService.addRouter(item).subscribe(() => {
                     if (index == items.length - 1) {
                       this.getData();
@@ -124,8 +120,12 @@ export class ListDemo1Component implements OnInit {
         {
           icon: "fa fa-save",
           title: () => "Save",
+          customClass:"warning",
+          hide:()=>{
+            if(this.tableTemplate.changedRows.length===0)return true;
+            return false;
+          },
           executeAsync: () => {
-
             var items = this.tableTemplate.changedRows;
             for (let index = 0; index < items.length; index++) {
               const element = items[index].currentItem;
@@ -144,10 +144,10 @@ export class ListDemo1Component implements OnInit {
               currentItem.tags = element.tags;
               this.routerService.editRouter(currentItem, () => {
                 if (index == items.length - 1) {
+                  this.tableTemplate.changedRows=[];
                   this.getData();
                 }
               })
-              console.log(currentItem)
             }
           }
         }
@@ -221,8 +221,12 @@ export class ListDemo1Component implements OnInit {
             var itemCopy = this._dataService.cloneItems(this.tableTemplate.selectedItems);
             for (let index = 0; index < itemCopy.length; index++) {
               var element = itemCopy[index];
-              var checkCopy = element.name && this.data.filter(s => s.name.includes(element.name + '_copy') && s.name.length >= element.name.length + 5 && s.name.length <= element.name.length + 8);
-              element.name = element.name + '_copy' + (checkCopy.length + 1);
+              if(element.name){
+                var checkCopy = this.data.filter(s =>s.name&& s.name.includes(element.name+ '_copy') && s.name.length >= element.name.length + 5 && s.name.length <= element.name.length + 7);
+              }else{
+                var checkCopy = this.data.filter(s =>s.name&& s.name.includes('_copy') && s.name.length >=  5 && s.name.length <= 7);
+              }
+              element.name =element.name? element.name + '_copy' + (checkCopy.length + 1):  '_copy' + (checkCopy.length + 1);
               this.routerService.addRouter(element).subscribe(res => {
                 this.data.push(element);
                 if (index == itemCopy.length - 1) {
@@ -234,7 +238,6 @@ export class ListDemo1Component implements OnInit {
         },
       ],
       inlineEdit: true,
-
       mode: TableMode.full,
       searchFields: ['created_at', 'name', 'tags', 'hosts', 'paths'],
       mainColumns: [
@@ -242,39 +245,39 @@ export class ListDemo1Component implements OnInit {
           type: TableColumnType.String,
           title: () => 'name',
           valueRef: () => 'name',
-          allowFilter: false
+          allowFilter: true
         },
         {
           type: TableColumnType.String,
           title: () => 'tags',
           valueRef: () => 'tags',
-          allowFilter: false
+          allowFilter: true
         },
         {
           type: TableColumnType.String,
           title: () => 'hosts',
           valueRef: () => 'hosts',
-          allowFilter: false,
+          allowFilter: true,
 
         },
-        // {
-        //   type: TableColumnType.String,
-        //   title: () => 'service',
-        //   valueRef: () => 'service.id',
-        //   allowFilter: true
-        // },
+        {
+          type: TableColumnType.String,
+          title: () => 'service',
+          valueRef: () => 'service.id',
+          allowFilter: true
+        },
         {
           type: TableColumnType.String,
           title: () => 'paths',
           valueRef: () => 'paths',
           allowFilter: true
         },
-        {
-          type: TableColumnType.Date,
-          title: () => 'created at',
-          valueRef: () => 'created_at',
-          allowFilter: true
-        }
+        // {
+        //   type: TableColumnType.Date,
+        //   title: () => 'created at',
+        //   valueRef: () => 'created_at',
+        //   allowFilter: true
+        // }
       ],
       serviceProvider: {
         searchAsync: request => {
