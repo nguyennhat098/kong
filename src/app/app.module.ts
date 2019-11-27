@@ -5,14 +5,10 @@ import { AppComponent } from './app.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DemoModule } from './demo';
-import { AddRouterComponent } from './add-router/add-router.component';
-import { EditComponent } from './edit/edit.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    // AddRouterComponent,
-    // EditComponent,
   ],
   imports: [
     BrowserModule,

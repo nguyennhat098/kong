@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddRouterComponent } from './add-router.component';
+import { ImportExcelComponent } from './import-excel.component';
 
-describe('AddRouterComponent', () => {
-  let component: AddRouterComponent;
-  let fixture: ComponentFixture<AddRouterComponent>;
+describe('ImportExcelComponent', () => {
+  let component: ImportExcelComponent;
+  let fixture: ComponentFixture<ImportExcelComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AddRouterComponent ]
+      declarations: [ ImportExcelComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AddRouterComponent);
+    fixture = TestBed.createComponent(ImportExcelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

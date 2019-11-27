@@ -6,9 +6,9 @@ import { ButtonDemoComponent } from './button';
 import { FormsModule } from '@angular/forms';
 import { Framework4CModule } from 'ngx-fw4c';
 import { ListDemo1Component } from '../list-demo1/list-demo1.component';
-import { AddRouterComponent } from '../add-router/add-router.component';
 import { EditComponent } from '../edit/edit.component';
 import { CommonModule } from '@angular/common';
+import { ImportExcelComponent } from '../import-excel/import-excel.component';
 
 const declarations = [
   TabDemoComponent,
@@ -16,9 +16,8 @@ const declarations = [
   DashboardDemoComponent,
   ButtonDemoComponent,
   ListDemo1Component,
-  AddRouterComponent,
      EditComponent,
-    
+    ImportExcelComponent
 ];
 
 @NgModule({

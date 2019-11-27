@@ -1,6 +1,6 @@
 <katana-table [option]="option" #tableTemplate>
     <ng-template let-item="item" katana-row-detail>
-        <h4>{{item.id}}</h4>
+        <pre>{{ item | json }}</pre>
     </ng-template>
     </katana-table>
     

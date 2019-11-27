@@ -1,93 +1,164 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
-import { ValidationOption, RequiredValidationRule, ValidationService, ClientValidator, ActionService } from 'ngx-fw4c';
+import { ValidationOption, RequiredValidationRule, ValidationService, ClientValidator, ActionService, CustomValidationRule, ValidationRule, ValidationRuleResponse } from 'ngx-fw4c';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { delay } from 'rxjs/operators';
+import { RouterService, RouterViewModel, ServiceViewModel } from '../service/router.service';
 
-export class Router {
-  name: string;
-  tags: string;
-  hosts: string[];
-  paths: string[];
-  https_redirect_status_code: number;
-  regex_priority: number;
-  Methods: string[];
-  strip_path: boolean;
-  preserve_host: boolean;
-  protocols: string[];
-  service: Service
-}
-export class Service {
-  name?: string;
-  Description?: string;
-  tags?: string;
-  url?: string;
-  protocol?: string;
-  host?: string;
-  port?: number;
-  path?: string;
-  Retries?: string;
-  Connect?: string;
-  Write?: string;
-  Read?: string;
-  id?: string;
-}
+
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.scss']
 })
 export class EditComponent implements OnInit {
- 
-  @Input() public Item: Router;
-  service = new Service;
+
+  @Input() public item: RouterViewModel;
+  service = new ServiceViewModel;
+  services: string[];
+  data = [];
   @ViewChild("formRef", { static: true }) public formRef: ElementRef;
   constructor(
     private _validationService: ValidationService,
     protected actionService: ActionService,
-    private http: HttpClient) { }
-  services: string[];
+    private http: HttpClient,
+    private routerService: RouterService) { }
 
-  callback(): Observable<any> {
-    this.Item.strip_path.valueOf()==true? this.Item.strip_path=true:this.Item.strip_path=false;
-    this.Item.service = this.service;
-    return of(this.Item);
-  }
-  ngOnInit() {
-    this.http.get('http://192.168.35.108:8001/services').subscribe((res: any) => {
-      this.services = res.data;
-    })
-    this.initValidations();
-   console.log(this.Item)
-  }
-
-  public isValid(): boolean {
-    if (this._validationService.isValid(false, true)) {
-      return true;
+    getData(): void {
+      this.data = [];
+      this.http.get('http://localhost:8001/routes').subscribe((res: any) => {
+        for (let index = 0; index < res.data.length; index++) {
+  
+          this.data.push(res.data[index]);
+  
+        }
+  
+  
+      });
     }
-    return false;
-  }
+  ngOnInit() {
+    this.getData();
+    this.http.get('http://localhost:8001/services').subscribe((res: any) => {
+      this.services = res.data;
+      if (this.item.service == null) {
+        this.services.unshift('');
+      }
+    });
 
+    this.initValidations();
+
+  }
   private initValidations(): void {
     var options = [
       new ValidationOption({
+        validationName: "Name",
+        valueResolver: () => this.item.name,
+        rules: [
+          new RequiredValidationRule(),
+          new CustomValidationRule(value => {
+            return this.routerService.validateName(value);
+          }),
+          new CustomValidationRule(value => {
+            var item=this.data.find(x=>x.name==value);
+            return of(new ValidationRuleResponse({
+              status:!item,
+              message:'Name must be unique'
+            }));
+          }),
+        ]
+      }),
+      new ValidationOption({
+        validationName: "Tags",
+        valueResolver: () => this.item.name,
+        rules: [
+          new CustomValidationRule(value => {
+            return this.routerService.validateName(value);
+          }),
+        ]
+      }),
+      new ValidationOption({
         validationName: "service",
-        valueResolver: () => this.service.id,
+        valueResolver: () => this.item.service,
         rules: [
           new RequiredValidationRule(),
         ]
       }),
+      new ValidationOption({
+        validationName: "paths",
+        valueResolver: () => this.item.paths,
+        rules: [
+          new RequiredValidationRule(),
+          new CustomValidationRule(value => {
+            return this.routerService.validateURL(value);
+          }),
+        ]
+      }),
+      new ValidationOption({
+        validationName: "Method",
+        valueResolver: () => this.item.methods,
+        rules: [
+          new CustomValidationRule(value => {
+            return this.routerService.validateMethod(value);
+          }),
+        ]
+      }),
+      new ValidationOption({
+        validationName: "Protocols",
+        valueResolver: () => this.item.protocols,
+        rules: [
+          new CustomValidationRule(value => {
+            return this.routerService.validateProtocol(value);
+          }),
+        ]
+      }),
+      new ValidationOption({
+        validationName: "Host",
+        valueResolver: () => this.item.hosts,
+        rules: [
+          new CustomValidationRule(value => {
+            return this.routerService.validateHost(value);
+          }),
+        ]
+      }),
+      new ValidationOption({
+        validationName: "StatusCode",
+        valueResolver: () => this.item.https_redirect_status_code,
+        rules: [
+          new CustomValidationRule(value => {
+            // this._validationService.isDirty((items) => {
 
-
+            // });
+            return this.routerService.validateStatusCode(value);
+          }),
+        ]
+      }),
     ];
     var validator = new ClientValidator({
       formRef: this.formRef,
       options: options,
-      payloadRef: () => this.Item
+      payloadRef: () => this.item
     });
     this._validationService.init({ validator });
 
   }
   onChange(data: string) {
-    this.service.id = data;
+    var currentItem: ServiceViewModel = { id: data };
+    this.item.service = currentItem;
+  }
+  public getValidator(): ValidationService {
+    return this._validationService;
+  }
+
+  public isValid(): boolean {
+    return this._validationService.isValid(true, false);
+  }
+
+  public callback(): Observable<any> {
+    var stripString = (String)(this.item.strip_path);
+    var preserveHostString = (String)(this.item.preserve_host);
+    this.item.strip_path = stripString === "undefined" || this.item.strip_path === null || stripString == 'true' ? this.item.strip_path = true : this.item.strip_path = false;
+    this.item.preserve_host = preserveHostString === "undefined" || this.item.preserve_host === null || preserveHostString == 'false' ? this.item.preserve_host = false : this.item.preserve_host = true;
+    this.item.name = this.item.name == '' ? this.item.name = null : this.item.name = this.item.name;
+    return of(this.item);
   }
 }

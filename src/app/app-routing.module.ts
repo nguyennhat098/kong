@@ -5,7 +5,6 @@ import { MenuTab, AdminLayoutComponent, AuthComponent } from 'ngx-fw4c';
 import { TabDemoComponent, ValidationDemoComponent, ButtonDemoComponent } from './demo';
 import { DashboardDemoComponent } from './demo/dashboard';
 import { ListDemo1Component } from './list-demo1/list-demo1.component';
-import { AddRouterComponent } from './add-router/add-router.component';
 import { EditComponent } from './edit/edit.component';
 
 const menuTabs: MenuTab[] = [
@@ -47,7 +46,8 @@ const routes: Routes = [
         label: 'CMC Global',
         url: '/dashboard'
       },
-      menuTabs: menuTabs
+      menuTabs: menuTabs,
+      menuType:'LEFT'
     },
     children: [
       {
@@ -64,14 +64,6 @@ const routes: Routes = [
           {
             path: 'list-demo',
             component: ListDemo1Component
-          },
-          {
-            path:'add-router',
-            component:AddRouterComponent,
-          },
-          {
-            path:'edit-router/:Id',
-            component:EditComponent
           }
         ]
       },

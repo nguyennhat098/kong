@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ListDemoService } from './list-demo.service';
+import { RouterService } from './router.service';
 
-describe('ListDemoService', () => {
+describe('RouterService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: ListDemoService = TestBed.get(ListDemoService);
+    const service: RouterService = TestBed.get(RouterService);
     expect(service).toBeTruthy();
   });
 });
