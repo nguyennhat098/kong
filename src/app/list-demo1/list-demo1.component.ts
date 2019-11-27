@@ -74,7 +74,7 @@ export class ListDemo1Component implements OnInit {
         },
         {
           icon: 'fa fa-print',
-          customClass: 'primary',
+          customClass: 'success',
           title: () => 'Export Excel',
           executeAsync: () => {
             this.routerService.exportAsExcel(this.data, 'sample');
