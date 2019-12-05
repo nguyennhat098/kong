@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DemoModule } from './demo';
+import { IgxExcelExporterService } from 'igniteui-angular';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,7 @@ import { DemoModule } from './demo';
   exports: [
     DemoModule
   ],
-  providers: [],
+  providers: [IgxExcelExporterService],
   bootstrap: [AppComponent]
 })
 

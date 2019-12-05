@@ -1,10 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-
 import * as XLSX from 'ts-xlsx';
 import { Observable, of } from 'rxjs';
-import { ValidationService, ValidationOption, ClientValidator } from 'ngx-fw4c';
+import { ValidationService, ClientValidator } from 'ngx-fw4c';
 
-//inside export class
 @Component({
 	selector: 'app-import-excel',
 	templateUrl: './import-excel.component.html',
@@ -15,6 +13,7 @@ export class ImportExcelComponent implements OnInit {
 	data = [];
 	arrayBuffer: any;
 	file: File;
+
 	incomingfile(event) {
 
 		this.file = event.target.files[0];
@@ -41,11 +40,12 @@ export class ImportExcelComponent implements OnInit {
 
 	ngOnInit() {
 		this.initValidations();
-
 	}
+
 	public getValidator(): ValidationService {
 		return this._validationService;
 	}
+
 	private initValidations(): void {
 		var options = [
 		];
@@ -56,6 +56,7 @@ export class ImportExcelComponent implements OnInit {
 		this._validationService.init({ validator });
 
 	}
+
 	public isValid(): boolean {
 		return this._validationService.isValid(true, false);
 	}
@@ -63,5 +64,4 @@ export class ImportExcelComponent implements OnInit {
 	public callback(): Observable<any> {
 		return of(this.data);
 	}
-
 }

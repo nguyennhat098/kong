@@ -1,11 +1,12 @@
-import { TableOption, ValidationService, ModalService, TemplateViewModel, TableComponent, ConfirmViewModel, TableConstant, TableMode, TableColumnType, DataService } from 'ngx-fw4c';
+import { TableOption, ValidationService, ModalService, TemplateViewModel, TableComponent, ConfirmViewModel, TableConstant, TableMode, TableColumnType, DataService, ValidationOption, RequiredValidationRule, CustomValidationRule, AggregatorService, KeyConst } from 'ngx-fw4c';
 import { Component, OnInit, ViewChild, TemplateRef, ElementRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EditComponent } from '../edit/edit.component';
 import { ServiceViewModel, RouterService, RouterViewModel } from '../service/router.service';
 import { of } from 'rxjs';
 import { ImportExcelComponent } from '../import-excel/import-excel.component';
-
+import { IgxExcelExporterOptions, IgxExcelExporterService } from "igniteui-angular";
+import { ExportComponent } from '../export/export.component';
 
 const httpOptions = {
   headers: new HttpHeaders({ "Content-Type": "application/json" })
@@ -21,34 +22,54 @@ export class ListDemo1Component implements OnInit {
 
   public option: TableOption;
   data = [];
-  constructor(private _modalService: ModalService
-    , private routerService: RouterService, private _dataService: DataService, private http: HttpClient) { }
+  constructor(private _modalService: ModalService,
+    private routerService: RouterService,
+    private _dataService: DataService,
+    private http: HttpClient,
+    protected aggregatorService: AggregatorService,
+    private excelExportService: IgxExcelExporterService) { }
   services: ServiceViewModel[] = [];
 
   getData(): void {
-    this.data = [];
-    this.http.get('http://localhost:8001/routes').subscribe((res: any) => {
-      for (let index = 0; index < res.data.length; index++) {
-        this.data.push(res.data[index]);
-      }
+    this.routerService.search(999).subscribe((res: any) => {
+      this.data = res;
       this.tableTemplate.reload();
     });
   }
 
   ngOnInit(): void {
     this.getData();
-    // this.http.get('http://192.168.110.46:8001/services').subscribe((res: any) => {
-    //   this.services = res.data;
-    // })
     this.initTable();
   }
 
-  private initTable() {
+  importExcel(items) {
+    for (let index = 0; index < items.length; index++) {
+      const element = items[index];
+      var item = new RouterViewModel();
+      item.hosts = element.hosts ? element.hosts.split(',') : [];
+      item.https_redirect_status_code = element.https_redirect_status_code;
+      item.methods = element.methods ? element.methods.split(',') : [];
+      item.name = element.name;
+      item.paths = element.paths ? element.paths.split(',') : [];
+      item.preserve_host = element.preserve_host == 'true' ? true : false;
+      item.protocols = element.protocols ? element.protocols.split(',') : [];
+      item.regex_priority = element.regex_priority;
+      item.service = new ServiceViewModel();
+      item.service.id = element.service;
+      item.strip_path = element.strip_path == 'true' ? true : false;
+      item.tags = element.tags ? element.tags.split(',') : [];
+      this.routerService.addRouter(item).subscribe(() => {
+        if (index == items.length - 1) {
+          this.getData();
+        }
+      })
+    }
+  }
 
+  private initTable() {
     this.option = new TableOption({
       localData: () => {
-
-        return of(this.data)
+        return of(this.data);
       },
       topButtons: [
         {
@@ -56,15 +77,18 @@ export class ListDemo1Component implements OnInit {
           customClass: 'primary',
           title: () => 'New',
           executeAsync: () => {
+            
             this._modalService.showTemplateDialog(new TemplateViewModel({
               template: EditComponent,
               customSize: 'modal-lg',
               title: 'ADD ROUTE TO TEST',
+              icon: 'fa fa-plus',
               validationKey: 'AddRouterComponent',
               data: {
-                item: new RouterViewModel
+                item: new RouterViewModel()
               },
               acceptCallback: item => {
+                console.log(item)
                 this.routerService.addRouter(item).subscribe(() => {
                   this.getData();
                 });
@@ -75,54 +99,38 @@ export class ListDemo1Component implements OnInit {
         {
           icon: 'fa fa-print',
           customClass: 'success',
-          title: () => 'Export Excel',
+          title: () => 'File',
           executeAsync: () => {
-            this.routerService.exportAsExcel(this.data, 'sample');
-
-          },
-        },
-        {
-          icon: 'fa fa-upload',
-          customClass: 'info',
-          title: () => 'Import Excel',
-          executeAsync: () => {
+            // this.tableTemplate.exportToExcel('abc');
             this._modalService.showTemplateDialog(new TemplateViewModel({
-              template: ImportExcelComponent,
-              customSize: 'modal-lg',
-              title: 'IMPORT EXCEL',
-              validationKey: 'ImportExcelComponent',
-              acceptCallback: items => {
-                for (let index = 0; index < items.length; index++) {
-                  const element = items[index];
-                  var item = new RouterViewModel();
-                  item.hosts = element.hosts ? element.hosts.split(',') : [];
-                  item.https_redirect_status_code = element.https_redirect_status_code;
-                  item.methods = element.methods ? element.methods.split(',') : [];
-                  item.name = element.name;
-                  item.paths = element.paths ? element.paths.split(',') : [];
-                  item.preserve_host = element.preserve_host;
-                  item.protocols = element.protocols ? element.protocols.split(',') : [];
-                  item.regex_priority = element.regex_priority;
-                  item.service = new ServiceViewModel();
-                  item.service.id = element.service;
-                  item.strip_path = element.strip_path;
-                  item.tags = element.tags ? element.tags.split(',') : [];
-                  this.routerService.addRouter(item).subscribe(() => {
-                    if (index == items.length - 1) {
-                      this.getData();
-                    }
-                  })
+              template: ExportComponent,
+              icon: 'fa fa-print',
+              title: 'File',
+              validationKey: 'ExportComponent',
+              acceptCallback: data => {
+                if (data == 'exportExcel') {
+                  this.routerService.exportExcel(this.data);
+                }
+                if (data == 'exportPdf') {
+                  this.routerService.exportPdf(this.data);
+                }
+                if (data == 'template') {
+                  this.routerService.exportTemplateExcel();
+                }
+                if (data && data[0].service) {
+                  this.importExcel(data);
                 }
               }
-            }));
+            }))
+
           },
         },
         {
           icon: "fa fa-save",
           title: () => "Save",
-          customClass:"warning",
-          hide:()=>{
-            if(this.tableTemplate.changedRows.length===0)return true;
+          customClass: "warning",
+          hide: () => {
+            if (this.tableTemplate.changedRows.length === 0) return true;
             return false;
           },
           executeAsync: () => {
@@ -144,7 +152,7 @@ export class ListDemo1Component implements OnInit {
               currentItem.tags = element.tags;
               this.routerService.editRouter(currentItem, () => {
                 if (index == items.length - 1) {
-                  this.tableTemplate.changedRows=[];
+                  this.tableTemplate.changedRows = [];
                   this.getData();
                 }
               })
@@ -160,16 +168,16 @@ export class ListDemo1Component implements OnInit {
               customSize: 'modal-lg',
               template: EditComponent,
               validationKey: 'EditComponent',
+              icon: 'fa fa-edit',
               data: {
                 item: this._dataService.cloneItem(item)
               },
               title: 'EDIT ROUTE TO TEST',
               acceptCallback: item1 => {
+                console.log(item1)
                 this.routerService.editRouter(item1, () => {
                   this.getData();
                 });
-              },
-              cancelCallback: () => {
               }
             }))
           }
@@ -194,6 +202,7 @@ export class ListDemo1Component implements OnInit {
           icon: 'fa fa-remove',
           title: () => 'Remove',
           customClass: 'danger',
+          lazyload: true,
           executeAsync: () => {
             this._modalService.showConfirmDialog(new ConfirmViewModel({
               title: 'Remove',
@@ -217,18 +226,22 @@ export class ListDemo1Component implements OnInit {
           icon: 'fa fa-copy',
           title: () => 'Copy',
           customClass: 'success',
+          lazyload: true,
           executeAsync: () => {
             var itemCopy = this._dataService.cloneItems(this.tableTemplate.selectedItems);
             for (let index = 0; index < itemCopy.length; index++) {
               var element = itemCopy[index];
-              if(element.name){
-                var checkCopy = this.data.filter(s =>s.name&& s.name.includes(element.name+ '_copy') && s.name.length >= element.name.length + 5 && s.name.length <= element.name.length + 7);
-              }else{
-                var checkCopy = this.data.filter(s =>s.name&& s.name.includes('_copy') && s.name.length >=  5 && s.name.length <= 7);
+
+              if (element.name) {
+                var checkCopy = this.data.filter(s => s.name && s.name.includes(element.name + '_copy') && s.name.length >= element.name.length + 5 && s.name.length <= element.name.length + 7);
+              } else {
+                var checkCopy = this.data.filter(s => s.name && s.name.includes('_copy') && s.name.length >= 5 && s.name.length <= 7);
               }
-              element.name =element.name? element.name + '_copy' + (checkCopy.length + 1):  '_copy' + (checkCopy.length + 1);
+
+              element.name = element.name ? element.name + '_copy' + (checkCopy.length + 1) : '_copy' + (checkCopy.length + 1);
               this.routerService.addRouter(element).subscribe(res => {
                 this.data.push(element);
+
                 if (index == itemCopy.length - 1) {
                   this.getData();
                 }
@@ -243,15 +256,23 @@ export class ListDemo1Component implements OnInit {
       mainColumns: [
         {
           type: TableColumnType.String,
-          title: () => 'name',
+          title: () => 'Name',
           valueRef: () => 'name',
-          allowFilter: true
+          allowFilter: true,
+          validationOption: new ValidationOption({
+            rules: [
+              new RequiredValidationRule(),
+              new CustomValidationRule((item) => {
+                return this.routerService.validateName(item);
+              })
+            ]
+          })
         },
         {
           type: TableColumnType.String,
           title: () => 'tags',
           valueRef: () => 'tags',
-          allowFilter: true
+          allowFilter: true,
         },
         {
           type: TableColumnType.String,
@@ -263,7 +284,7 @@ export class ListDemo1Component implements OnInit {
         {
           type: TableColumnType.String,
           title: () => 'service',
-          valueRef: () => 'service.id',
+          valueRef: () => 'service_name',
           allowFilter: true
         },
         {
@@ -286,4 +307,10 @@ export class ListDemo1Component implements OnInit {
       }
     });
   }
+
+  // private registerEvents():void {
+  //   this.aggregatorService.subscribe('test', (response) => {
+  //     this.aggregatorService.publish('test1','ok');
+  //   });
+  // }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
-import { ValidationOption, RequiredValidationRule, ValidationService, ClientValidator, ActionService, CustomValidationRule, ValidationRule, ValidationRuleResponse } from 'ngx-fw4c';
+import { ValidationOption, RequiredValidationRule, ValidationService, ClientValidator, ActionService, CustomValidationRule, ValidationRule, ValidationRuleResponse, AggregatorService } from 'ngx-fw4c';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { delay } from 'rxjs/operators';
@@ -12,30 +12,28 @@ import { RouterService, RouterViewModel, ServiceViewModel } from '../service/rou
   styleUrls: ['./edit.component.scss']
 })
 export class EditComponent implements OnInit {
-
   @Input() public item: RouterViewModel;
   service = new ServiceViewModel;
   services: string[];
   data = [];
   @ViewChild("formRef", { static: true }) public formRef: ElementRef;
+
   constructor(
     private _validationService: ValidationService,
     protected actionService: ActionService,
     private http: HttpClient,
+    private aggregatorService: AggregatorService,
     private routerService: RouterService) { }
 
-    getData(): void {
-      this.data = [];
-      this.http.get('http://localhost:8001/routes').subscribe((res: any) => {
-        for (let index = 0; index < res.data.length; index++) {
-  
-          this.data.push(res.data[index]);
-  
-        }
-  
-  
-      });
-    }
+  getData(): void {
+    this.routerService.search(999).subscribe((res: any) => {
+      this.data = res;
+      if (this.item.name) {
+        this.data = this.data.filter(item => item.name !== this.item.name);
+      }
+    });
+  }
+
   ngOnInit() {
     this.getData();
     this.http.get('http://localhost:8001/services').subscribe((res: any) => {
@@ -43,11 +41,20 @@ export class EditComponent implements OnInit {
       if (this.item.service == null) {
         this.services.unshift('');
       }
+console.log(this.item)
     });
 
     this.initValidations();
 
+    // setTimeout(() => {
+    //   this.aggregatorService.publish('test', { name: 'testing' });
+    // }, 4000);
+
+    // this.aggregatorService.subscribe('test1', (res) => {
+    //   debugger
+    // });
   }
+
   private initValidations(): void {
     var options = [
       new ValidationOption({
@@ -57,21 +64,22 @@ export class EditComponent implements OnInit {
           new CustomValidationRule(value => {
             return this.routerService.validateName(value);
           }),
+
           new CustomValidationRule(value => {
-            var item=this.data.find(x=>x.name==value);
+            var checkData = this.data.find(x => x.name == value);
             return of(new ValidationRuleResponse({
-              status:!item,
-              message:'Name must be unique'
+              status: !checkData,
+              message: 'Name must be unique'
             }));
           }),
         ]
       }),
       new ValidationOption({
         validationName: "Tags",
-        valueResolver: () => this.item.name,
+        valueResolver: () => this.item.tags,
         rules: [
           new CustomValidationRule(value => {
-            return this.routerService.validateName(value);
+            return this.routerService.validateTag(value);
           }),
         ]
       }),
@@ -124,9 +132,6 @@ export class EditComponent implements OnInit {
         valueResolver: () => this.item.https_redirect_status_code,
         rules: [
           new CustomValidationRule(value => {
-            // this._validationService.isDirty((items) => {
-
-            // });
             return this.routerService.validateStatusCode(value);
           }),
         ]
@@ -140,10 +145,12 @@ export class EditComponent implements OnInit {
     this._validationService.init({ validator });
 
   }
+
   onChange(data: string) {
     var currentItem: ServiceViewModel = { id: data };
     this.item.service = currentItem;
   }
+
   public getValidator(): ValidationService {
     return this._validationService;
   }
@@ -155,9 +162,18 @@ export class EditComponent implements OnInit {
   public callback(): Observable<any> {
     var stripString = (String)(this.item.strip_path);
     var preserveHostString = (String)(this.item.preserve_host);
-    this.item.strip_path = stripString === "undefined" || this.item.strip_path === null || stripString == 'true' ? this.item.strip_path = true : this.item.strip_path = false;
-    this.item.preserve_host = preserveHostString === "undefined" || this.item.preserve_host === null || preserveHostString == 'false' ? this.item.preserve_host = false : this.item.preserve_host = true;
-    this.item.name = this.item.name == '' ? this.item.name = null : this.item.name = this.item.name;
-    return of(this.item);
+    var data = new RouterViewModel();
+    data.hosts = this.item.hosts? this.item.hosts:null;
+    data.https_redirect_status_code = this.item.https_redirect_status_code;
+    data.methods = this.item.methods?this.item.methods:null;
+    data.paths = this.item.paths?this.item.paths:null;
+    data.protocols = this.item.protocols;
+    data.service = this.item.service;
+    data.tags = this.item.tags;
+    data.strip_path = stripString===null || stripString == 'true' ? this.item.strip_path = true : this.item.strip_path = false;
+    data.preserve_host = preserveHostString === null || preserveHostString == 'false' ? this.item.preserve_host = false : this.item.preserve_host = true;
+    data.name = !this.item.name?  null : this.item.name;
+    data.id= this.item.id;
+    return of(data);
   }
 }

@@ -5,7 +5,7 @@ import { MenuTab, AdminLayoutComponent, AuthComponent } from 'ngx-fw4c';
 import { TabDemoComponent, ValidationDemoComponent, ButtonDemoComponent } from './demo';
 import { DashboardDemoComponent } from './demo/dashboard';
 import { ListDemo1Component } from './list-demo1/list-demo1.component';
-import { EditComponent } from './edit/edit.component';
+import { RouteListComponent } from './demo/routes-management/list/list-routes.component';
 
 const menuTabs: MenuTab[] = [
   {
@@ -33,7 +33,14 @@ const menuTabs: MenuTab[] = [
         children: [
           { state: 'validation', name: 'Validation', type: 'link', icon: 'fa fa-calendar-check-o' }
         ]
-      } 
+      },
+      {
+        label: 'routes',
+        icon: 'fa fa-twitter',
+        children: [
+          { state: 'routes-list', name: 'Validation', type: 'link', icon: 'fa fa-calendar-check-o' }
+        ]
+      }
     ]
   }
 ];
@@ -78,7 +85,11 @@ const routes: Routes = [
       {
         path: 'auth',
         component: AuthComponent
-      }
+      },
+      {
+        path: 'routes-list',
+        component: RouteListComponent
+      },
     ]
   }
 ];

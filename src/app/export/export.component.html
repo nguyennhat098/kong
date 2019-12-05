@@ -1,0 +1,13 @@
+<div class="selectWrapper">
+    <label for="default">Select Action</label>
+    
+    <div>
+      <select  (change)="selectAction($event)" id="default">
+      <option>Export Excel</option>
+      <option>Export Pdf</option>
+      <option>Import Excel</option>
+      <option>Download Template</option>
+    </select>
+    </div>
+    <input  #inputFile type="file" (change)="incomingfile($event)" style="display: inline-block;margin-top: 30px;" placeholder="Upload file" accept=".xlsx" [hidden]="!ShowImport">
+  </div>

@@ -1,0 +1,62 @@
+<katana-card>
+    <div #formRef>
+        <katana-form [column]="2">
+            <katana-textbox [title]="'Name'" [validationName]="'Name'" [(model)]="item.name" *katana-item>
+            </katana-textbox>
+            <div style="margin-top: 3px;width: 100%;margin-left: 2px;"  class="form-group row" *katana-item>
+                <label for="Name">Service (requied)</label>
+                <div  *ngIf="item.service==null; then addRouter else editRouter"></div>
+                <ng-template #addRouter>
+                    <select  validation-name="service" class="form-control" (change)="onChange($event.target.value)">
+                        <option *ngFor="let itemService of services" value="{{itemService.id}}">{{itemService.name}}
+                        </option>
+                    </select>
+                </ng-template>
+                <ng-template #editRouter>
+                    <select validation-name="service" class="form-control" (change)="onChange($event.target.value)">
+                        <option *ngFor="let itemService of services" value="{{itemService.id}}"
+                            [selected]="item.service.id == itemService.id">{{itemService.name}}
+                        </option>
+                    </select>
+                </ng-template>
+            </div>
+            <katana-textbox [title]="'Regex Priority'" [validationName]="StatusCode" [(model)]="item.regex_priority"
+                *katana-item>
+            </katana-textbox>
+            <katana-textbox [type]="'number'" [title]="'Status Code'" [validationName]="StatusCode"
+                [(model)]="item.https_redirect_status_code" *katana-item>
+            </katana-textbox>
+            <div class="form-group" *katana-item>
+                <!-- <label for="Name">Preserve Host <label style="font-size: small;color: grey;">(optional)</label></label> -->
+                <p for="Name"> <label >Preserve Host (optional)</label></p>
+
+                <katana-radio-items [(model)]="item.preserve_host">
+                    <katana-radio-item [value]="'true'" [checked]="item.preserve_host==true" [label]="'True'">
+                    </katana-radio-item>
+                    <katana-radio-item [value]="'false'" [checked]="item.preserve_host==false" [label]="'False'">
+                    </katana-radio-item>
+                </katana-radio-items>
+            </div>
+            <div class="form-group" *katana-item>
+                    <p for="Name"> <label >Strip Path (optional)</label></p>
+
+                    <katana-radio-items [title]="'Strip path'" [(model)]="item.strip_path">
+                            <katana-radio-item [value]="'true'" [checked]="item.strip_path==true" [label]="'True'">
+                            </katana-radio-item>
+                            <katana-radio-item [value]="'false'" [checked]="item.strip_path==false" [label]="'False'">
+                            </katana-radio-item>
+                        </katana-radio-items>
+            </div>
+        </katana-form>
+        <katana-chips [title]="'Paths (requied)'" [validationName]="'paths'" [(model)]="item.paths"></katana-chips>
+
+        <katana-chips [title]="'Tags'" [validationName]="'Tags'" [(model)]="item.tags"></katana-chips>
+        <katana-chips [title]="'Host'" [validationName]="'Host'" [(model)]="item.hosts"></katana-chips>
+        <katana-chips [title]="'Method'" [validationName]="'Method'" [(model)]="item.methods"></katana-chips>
+        <katana-chips [title]="'Protocols'" [validationName]="'Protocols'" [(model)]="item.protocols"></katana-chips>
+      
+    
+
+    </div>
+</katana-card>
+<!-- [(ngModel)]="item.service.id" -->

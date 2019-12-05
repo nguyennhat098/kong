@@ -9,15 +9,22 @@ import { ListDemo1Component } from '../list-demo1/list-demo1.component';
 import { EditComponent } from '../edit/edit.component';
 import { CommonModule } from '@angular/common';
 import { ImportExcelComponent } from '../import-excel/import-excel.component';
-
+import { ExportComponent } from '../export/export.component';
+import { RouteListComponent } from './routes-management/list/list-routes.component';
+import { ExportRoutesComponent } from './routes-management/export/export-routes.component';
+import { EditRouteComponent } from './routes-management/edit/edit-routes.component';
 const declarations = [
   TabDemoComponent,
   ValidationDemoComponent,
   DashboardDemoComponent,
   ButtonDemoComponent,
   ListDemo1Component,
-     EditComponent,
-    ImportExcelComponent
+  EditComponent,
+  ImportExcelComponent,
+  ExportComponent,
+  RouteListComponent,
+  ExportRoutesComponent,
+  EditRouteComponent
 ];
 
 @NgModule({
@@ -28,7 +35,7 @@ const declarations = [
     FormsModule,
     CommonModule,
     Framework4CModule.forRoot()
-  ]
+  ],
 })
 
 export class DemoModule { }
