@@ -6,17 +6,43 @@ export class RouteViewModel {
     hosts: string[];    
     paths: string[];
     @propertyMap('https_redirect_status_code')
-    StatusCode: number;
+    statusCode: number;
+    @propertyMap('regex_priority')
+    regexPriority: number;
+    methods: string[];
+    @propertyMap('strip_path')
+    stripPath: boolean;
+    @propertyMap('preserve_host')
+    preserveHost: boolean;
+    protocols: string[];
+    service: ServiceViewModel;
+    id: string; 
+    serviceName:string;   
+    constructor(init?: Partial<RouteViewModel>) {
+        Object.assign(this, init);
+        this.statusCode=null;
+        this.preserveHost=null;
+        this.regexPriority=null;
+        this.stripPath=null;
+    }
+}
+
+export class RouteModelMapping {
+    name: string;
+    tags: string;
+    hosts: string[];    
+    paths: string[];
+    https_redirect_status_code: number;
     regex_priority: number;
     methods: string[];
-    strippath: boolean;
+    strip_path: boolean;
     preserve_host: boolean;
     protocols: string[];
     service: ServiceViewModel;
-    id: string;    
-    constructor(init?: Partial<RouteViewModel>) {
+    id: string; 
+    serviceName:string;   
+    constructor(init?: Partial<RouteModelMapping>) {
         Object.assign(this, init);
-        this.StatusCode=null;
     }
 }
 

@@ -26,23 +26,25 @@ export class RoutesManagementService {
     return this._http.get(`${this.urlService}?size=${size}`).pipe(map((s: any) => s.data));
   }
 
+  // public search(request: RouteSearchRequest): Observable<RouteSearchResponse> {
+  //   return this._http.get(`${this.urlGet}?size=999`, { params: request as any }).pipe(map((r: any) => {
+  //     this._http.get(`${this.urlService}`).subscribe((s: any) => {
+  //       for (let index = 0; index < r.data.length; index++) {
+  //         var currentService = (s.data as []).find((s: any) => s.id == r.data[index].service.id);
+  //         r.data[index].serviceName = (currentService as ServiceViewModel).name;
+  //       }
+  //     });
+  //      return new RouteSearchResponse({ items: r.data });
+  //   }));
+  // }
   public search(request: RouteSearchRequest): Observable<RouteSearchResponse> {
     return this._http.get(`${this.urlGet}?size=999`, { params: request as any }).pipe(map((r: any) => {
-      this._http.get(`${this.urlService}`).subscribe((s: any) => {
-        for (let index = 0; index < r.data.length; index++) {
-          var currentService = (s.data as []).find((s: any) => s.id == r.data[index].service.id);
-          r.data[index].serviceName = (currentService as ServiceViewModel).name;
-        }
-      });
-       return new RouteSearchResponse({ items: r.data });
+      
+      return new RouteSearchResponse({
+        items: r.data.map((items: any) => new ModelMapper(RouteViewModel).map(items) )
+      })
     }));
   }
-  // public search(request: RouteSearchRequest): Observable<RouteSearchResponse> {
-  //   return this._http.get(`${this.urlGet}?size=999`, { params: request as any }).pipe(map((r: any) => r.data.map((res: any) => {
-  //     return new RouteSearchResponse({ items: new ModelMapper(RouteViewModel).map(res) });
-
-  //   })));
-  // }
   public edit(item, request: RouteSearchRequest): Observable<RouteSearchResponse> {
     return this._http.put(this.urlGet + '/' + item.id, item, httpOptions);
   }
@@ -59,7 +61,7 @@ export class RoutesManagementService {
     var col = ["Name", "Tags", "Hosts", "Service", "Paths"];
     var rows = [];
     data.forEach(element => {
-      var temp = [element.name, element.tags, element.hosts, element.service_name, element.paths];
+      var temp = [element.name, element.tags, element.hosts, element.serviceName, element.paths];
       rows.push(temp);
     });
     let pdf = new jspdf('p', 'mm', 'a4');
@@ -91,7 +93,11 @@ export class RoutesManagementService {
 
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
-      console.log(element)
+      delete element['preserve_host'];
+      delete element['https_redirect_status_code'];
+      delete element['regex_priority'];
+      delete element['strip_path'];
+
       element.paths = element.paths.toString();
       element.methods = element.methods ? element.methods.toString() : null;
       element.protocols = element.protocols ? element.protocols.toString() : null;

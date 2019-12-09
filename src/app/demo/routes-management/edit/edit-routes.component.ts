@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { RouteViewModel, RouteSearchResponse } from '../routes.model';
+import { RouteViewModel, RouteSearchResponse, RouteModelMapping } from '../routes.model';
 import { ServiceViewModel } from 'src/app/service/router.service';
 import { ValidationService, ActionService, ValidationOption, CustomValidationRule, RequiredValidationRule, ValidationRuleResponse, ClientValidator } from 'ngx-fw4c';
 import { RoutesManagementService } from '../routes-management.service';
@@ -39,7 +39,6 @@ export class EditRouteComponent implements OnInit {
         this.services.unshift('');
       }
     });
-
     this.initValidations();
   }
   private initValidations(): void {
@@ -55,7 +54,6 @@ export class EditRouteComponent implements OnInit {
               message: 'wrong format.'
             }));
           }),
-
           new CustomValidationRule(value => {
             var checkData = this.data.find(x => x.name == value);
             return of(new ValidationRuleResponse({
@@ -143,8 +141,8 @@ export class EditRouteComponent implements OnInit {
         ]
       }),
       new ValidationOption({
-        validationName: "StatusCode",
-        valueResolver: () => this.item.StatusCode,
+        validationName: "statusCode",
+        valueResolver: () => this.item.statusCode,
         rules: [
           new CustomValidationRule(value => {
             return of(new ValidationRuleResponse({
@@ -177,12 +175,25 @@ export class EditRouteComponent implements OnInit {
   }
 
   public callback(): Observable<any> {
-    var stripString = (String)(this.item.strippath);
-    var preserveHostString = (String)(this.item.preserve_host);
-    delete this.item['serviceName'];
-    this.item.strippath = stripString===null || stripString == 'true' ? this.item.strippath = true : this.item.strippath = false;
-    this.item.preserve_host = preserveHostString === null || preserveHostString == 'false' ? this.item.preserve_host = false : this.item.preserve_host = true;
-    this.item.name = !this.item.name?  null : this.item.name;
-    return of(this.item);
+    var stripString = (String)(this.item.stripPath);
+    var preserveHostString = (String)(this.item.preserveHost);
+    this.item.stripPath = stripString === null || stripString == 'true' ? true : false;
+    this.item.preserveHost = preserveHostString === null || preserveHostString == 'false' ? false : true;
+    this.item.name = !this.item.name ? null : this.item.name;
+    var currentItem = new RouteModelMapping({
+      hosts: this.item.hosts,
+      methods: this.item.methods,
+      name: this.item.name,
+      paths: this.item.paths,
+      preserve_host: this.item.preserveHost,
+      regex_priority: this.item.regexPriority ? +this.item.regexPriority : 0,
+      https_redirect_status_code: this.item.statusCode ? +this.item.statusCode : 426,
+      protocols: this.item.protocols,
+      service: this.item.service,
+      strip_path: this.item.stripPath,
+      tags: this.item.tags,
+      id: this.item.id
+    });
+    return of(currentItem);
   }
 }
