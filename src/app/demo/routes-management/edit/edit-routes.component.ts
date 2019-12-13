@@ -68,7 +68,7 @@ export class EditRouteComponent implements OnInit {
         valueResolver: () => this.item.tags,
         rules: [
           new CustomValidationRule(value => {
-            var regex = new RegExp("^[a-zA-Z0-9.-~]*$");
+            var regex = new RegExp("^[a-zA-Z0-9\.\~\-]*$");
             var data = value.filter(x => x && !regex.test(x));
             return of(new ValidationRuleResponse({
               status: data.length < 1,
@@ -90,8 +90,8 @@ export class EditRouteComponent implements OnInit {
         rules: [
           new RequiredValidationRule(),
           new CustomValidationRule(value => {
-            var regex = new RegExp("^[a-zA-Z0-9.\~\-]*$");
-            var data = value.filter(x => x && !x.startsWith('/', 0) && regex.test(x));
+            var regex = new RegExp("^[a-zA-Z0-9/\.\~\-]*$");
+            var data = value.filter(x => x && (!x.startsWith('/', 0) || !regex.test(x) || x.indexOf('//') > -1));
             return of(new ValidationRuleResponse({
               status: data.length < 1,
               message: 'A list of paths that match this Route. For example: /my-path. At least one of hosts, paths, or methods must be set.'

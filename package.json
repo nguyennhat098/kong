@@ -43,6 +43,7 @@
     "ngx-bootstrap": "^5.2.0",
     "ngx-filesaver": "^8.1.0",
     "ngx-pipes": "^2.6.0",
+    "pdfmake": "^0.1.62",
     "rxjs": "~6.4.0",
     "ts-xlsx": "0.0.11",
     "tslib": "^1.10.0",

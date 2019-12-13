@@ -2,5 +2,7 @@
     <ng-template let-item="item" katana-row-detail>
         <pre>{{ item | json }}</pre>
     </ng-template>
-    </katana-table>
-    
+    <ng-template let-item="item" #serviceTemplate>
+        <service-info [id]="item.service.id"></service-info>
+     </ng-template>
+</katana-table>

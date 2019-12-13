@@ -4,7 +4,6 @@ import { IgxExcelExporterService, IgxExcelExporterOptions } from 'igniteui-angul
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServiceViewModel, RouteSearchRequest, RouteSearchResponse, ModelMapper, RouteViewModel } from './routes.model';
-import { MockService } from 'ngx-fw4c';
 import 'jspdf-autotable';
 import * as jspdf from 'jspdf';
 const httpOptions = {
@@ -26,25 +25,14 @@ export class RoutesManagementService {
     return this._http.get(`${this.urlService}?size=${size}`).pipe(map((s: any) => s.data));
   }
 
-  // public search(request: RouteSearchRequest): Observable<RouteSearchResponse> {
-  //   return this._http.get(`${this.urlGet}?size=999`, { params: request as any }).pipe(map((r: any) => {
-  //     this._http.get(`${this.urlService}`).subscribe((s: any) => {
-  //       for (let index = 0; index < r.data.length; index++) {
-  //         var currentService = (s.data as []).find((s: any) => s.id == r.data[index].service.id);
-  //         r.data[index].serviceName = (currentService as ServiceViewModel).name;
-  //       }
-  //     });
-  //      return new RouteSearchResponse({ items: r.data });
-  //   }));
-  // }
   public search(request: RouteSearchRequest): Observable<RouteSearchResponse> {
     return this._http.get(`${this.urlGet}?size=999`, { params: request as any }).pipe(map((r: any) => {
-      
       return new RouteSearchResponse({
-        items: r.data.map((items: any) => new ModelMapper(RouteViewModel).map(items) )
+        items: r.data.map((items: any) =>new ModelMapper(RouteViewModel).map(items))
       })
     }));
   }
+
   public edit(item, request: RouteSearchRequest): Observable<RouteSearchResponse> {
     return this._http.put(this.urlGet + '/' + item.id, item, httpOptions);
   }
@@ -97,6 +85,10 @@ export class RoutesManagementService {
       delete element['https_redirect_status_code'];
       delete element['regex_priority'];
       delete element['strip_path'];
+      delete element['destinations'];
+      delete element['headers'];
+      delete element['snis'];
+      delete element['sources'];
 
       element.paths = element.paths.toString();
       element.methods = element.methods ? element.methods.toString() : null;

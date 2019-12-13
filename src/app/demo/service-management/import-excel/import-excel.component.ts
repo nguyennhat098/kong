@@ -1,26 +1,22 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import * as XLSX from 'ts-xlsx';
+import * as XLSX from 'xlsx';
 import { Observable, of } from 'rxjs';
 import { ValidationService, ClientValidator } from 'ngx-fw4c';
-@Component({
-  selector: 'app-export-routes',
-  templateUrl: './export-routes.component.html',
-  styleUrls: ['./export-routes.component.scss']
-})
-export class ExportRoutesComponent implements OnInit {
 
-  @ViewChild('inputFile',{static:true}) myInputVariable: ElementRef;
+@Component({
+	selector: 'app-import-excel',
+    templateUrl: './import-excel.component.html',
+    styleUrls: ['./import-excel.component.scss']
+})
+export class ImportExcelComponent implements OnInit {
 	@ViewChild("formRef", { static: true }) public formRef: ElementRef;
-	ShowImport = false;
-	data: any = [];
+	data = [];
 	arrayBuffer: any;
 	file: File;
 
-	constructor(private _validationService: ValidationService) { }
-
-	ngOnInit() {
-		this.initValidations();
-		this.data = 'exportExcel';
+	incomingfile(event) {
+		this.file = event.target.files[0];
+		this.Upload();
 	}
 
 	Upload() {
@@ -38,6 +34,11 @@ export class ExportRoutesComponent implements OnInit {
 			this.data = element;
 		}
 		fileReader.readAsArrayBuffer(this.file);
+	}
+	constructor(private _validationService: ValidationService, ) { }
+
+	ngOnInit() {
+		this.initValidations();
 	}
 
 	public getValidator(): ValidationService {
@@ -61,27 +62,5 @@ export class ExportRoutesComponent implements OnInit {
 
 	public callback(): Observable<any> {
 		return of(this.data);
-	}
-
-	incomingfile(event) {
-		this.file = event.target.files[0];
-		this.Upload();
-	}
-
-	selectAction(input) {
-		this.data = [];
-		var data = input.target.value;
-		this.ShowImport = data == 'Import Excel' ? true : false;
-		if (data == 'Export Excel') {
-			this.myInputVariable.nativeElement.value = '';
-			this.data = 'exportExcel';
-		} else if (data == 'Export Pdf') {
-			this.myInputVariable.nativeElement.value = '';
-			this.data = 'exportPdf';
-		} else if (data == 'Download Template') {
-			this.myInputVariable.nativeElement.value = '';
-			this.data = 'template';
-		}
-		
 	}
 }

@@ -6,6 +6,7 @@ import { TabDemoComponent, ValidationDemoComponent, ButtonDemoComponent } from '
 import { DashboardDemoComponent } from './demo/dashboard';
 import { ListDemo1Component } from './list-demo1/list-demo1.component';
 import { RouteListComponent } from './demo/routes-management/list/list-routes.component';
+import { ServiceManagementComponent } from './demo/service-management/service-management.component';
 
 const menuTabs: MenuTab[] = [
   {
@@ -28,6 +29,13 @@ const menuTabs: MenuTab[] = [
         ]
       },
       {
+        label: 'Service Management',
+        icon: 'fa fa-bar-chart',
+        children: [
+          { state: 'service', name: 'Service Management', type: 'link', icon: 'fa fa-calendar-check-o' }
+        ]
+      },
+      {
         label: 'Validation',
         icon: 'fa fa-twitter',
         children: [
@@ -38,7 +46,7 @@ const menuTabs: MenuTab[] = [
         label: 'routes',
         icon: 'fa fa-twitter',
         children: [
-          { state: 'routes-list', name: 'Validation', type: 'link', icon: 'fa fa-calendar-check-o' }
+          { state: 'routes-list', name: 'Route Management', type: 'link', icon: 'fa fa-calendar-check-o' }
         ]
       }
     ]
@@ -54,9 +62,13 @@ const routes: Routes = [
         url: '/dashboard'
       },
       menuTabs: menuTabs,
-      menuType:'LEFT'
+      menuType:'TOP'
     },
     children: [
+      {
+        path: 'service',
+        component: ServiceManagementComponent
+      },
       {
         path: 'component',
         children: [
@@ -85,6 +97,10 @@ const routes: Routes = [
       {
         path: 'auth',
         component: AuthComponent
+      },
+      {
+        path: 'routes-list',
+        component: RouteListComponent
       },
       {
         path: 'routes-list',

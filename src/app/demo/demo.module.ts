@@ -13,6 +13,8 @@ import { ExportComponent } from '../export/export.component';
 import { RouteListComponent } from './routes-management/list/list-routes.component';
 import { ExportRoutesComponent } from './routes-management/export/export-routes.component';
 import { EditRouteComponent } from './routes-management/edit/edit-routes.component';
+// import { ServiceManagementComponent } from './service-management/service-management.component';
+import { ServiceInfoComponent } from './routes-management/service-info/service-info.component';
 const declarations = [
   TabDemoComponent,
   ValidationDemoComponent,
@@ -24,7 +26,8 @@ const declarations = [
   ExportComponent,
   RouteListComponent,
   ExportRoutesComponent,
-  EditRouteComponent
+  EditRouteComponent,
+ServiceInfoComponent
 ];
 
 @NgModule({

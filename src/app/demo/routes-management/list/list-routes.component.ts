@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
-import { TableComponent, TableOption, ModalService, DataService, AggregatorService, TemplateViewModel, ConfirmViewModel, TableConstant, TableMode, TableColumnType, ValidationOption, RequiredValidationRule, CustomValidationRule, ValidationRuleResponse } from 'ngx-fw4c';
+import { Component, OnInit, ViewChild, TemplateRef, SimpleChanges, OnChanges } from '@angular/core';
+import { TableComponent, TableOption, ModalService, DataService, AggregatorService, TemplateViewModel, ConfirmViewModel, TableConstant, TableMode, TableColumnType, ValidationOption, RequiredValidationRule, CustomValidationRule, ValidationRuleResponse, KeyConst } from 'ngx-fw4c';
 
 import { IgxExcelExporterService } from 'igniteui-angular';
 import { RouteViewModel, ServiceViewModel, RouteSearchResponse, RouteSearchRequest, RouteModelMapping } from '../routes.model';
@@ -16,8 +16,9 @@ import { map } from 'rxjs/operators';
 })
 export class RouteListComponent implements OnInit {
   @ViewChild('tableTemplate', { static: true }) public tableTemplate: TableComponent;
-  @ViewChild('imageTemplate', { static: true }) public imageTemplate: TemplateRef<any>;
-
+  // @ViewChild('imageTemplate', { static: true }) public imageTemplate: TemplateRef<any>;
+  @ViewChild('serviceTemplate',{static: true}) public serviceTemplate: TemplateRef<any>
+  
   public option: TableOption;
   data = [];
   constructor(private _modalService: ModalService,
@@ -30,14 +31,13 @@ export class RouteListComponent implements OnInit {
       this.data = res.items;
       this.tableTemplate.reload();
     });
-
     this.initTable();
+    this.registerEvents();
   }
-
   importExcel(items) {
     for (let index = 0; index < items.length; index++) {
       const element = items[index];
-      var service=new ServiceViewModel({ id: element.service });
+      var service = new ServiceViewModel({ id: element.service });
       var item = new RouteModelMapping({
         hosts: element.hosts ? element.hosts.split(',') : [],
         https_redirect_status_code: element.statusCode,
@@ -107,7 +107,7 @@ export class RouteListComponent implements OnInit {
                 if (data == 'template') {
                   this._routerService.exportTemplateExcel();
                 }
-                if (data && (data as []).length>0) {
+                if (data && Array.isArray(data)) {
                   this.importExcel(data);
                 }
               }
@@ -142,7 +142,7 @@ export class RouteListComponent implements OnInit {
               });
               this._routerService.edit(currentItem, new RouteSearchRequest).subscribe(() => {
                 if (index == items.length - 1) {
-                  this.tableTemplate.changedRows = [];
+                  this.tableTemplate.resetChanges();
                   this.tableTemplate.reload();
                 }
               })
@@ -153,6 +153,7 @@ export class RouteListComponent implements OnInit {
       actions: [
         {
           icon: 'fa fa-edit',
+          customClass:'primary',
           executeAsync: (item: RouteViewModel) => {
             this._modalService.showTemplateDialog(new TemplateViewModel({
               customSize: 'modal-lg',
@@ -173,6 +174,7 @@ export class RouteListComponent implements OnInit {
         },
         {
           icon: 'fa fa-remove',
+          customClass:'danger',
           executeAsync: (item: any) => {
             this._modalService.showConfirmDialog(new ConfirmViewModel({
               title: 'Delete',
@@ -242,7 +244,6 @@ export class RouteListComponent implements OnInit {
                 tags: element.tags,
                 id: element.id
               });
-              
               this.data.push(element);
               this._routerService.add(currentItem, new RouteSearchRequest).subscribe(res => {
                 if (index == itemCopy.length - 1) {
@@ -281,26 +282,30 @@ export class RouteListComponent implements OnInit {
           title: () => 'tags',
           valueRef: () => 'tags',
           allowFilter: true,
+          editInline:false
         },
         {
           type: TableColumnType.String,
           title: () => 'hosts',
           valueRef: () => 'hosts',
           allowFilter: true,
+          editInline:false
         },
         {
           type: TableColumnType.String,
           title: () => 'service',
           valueRef: () => 'serviceName',
-          allowFilter: true
+          customTemplate: ()=> this.serviceTemplate,
+          allowFilter: false,
+          editInline:false
         },
         {
           type: TableColumnType.String,
           title: () => 'paths',
           valueRef: () => 'paths',
-          allowFilter: true
+          allowFilter: true,
+          editInline:false
         }
-
       ],
       serviceProvider: {
         searchAsync: request => {
@@ -309,4 +314,19 @@ export class RouteListComponent implements OnInit {
       }
     });
   }
+  private registerEvents(): void {
+		this.aggregatorService.subscribe(KeyConst.Search, (response: any) => {
+			var filter = response.keyword;
+			this.tableTemplate.setFilter('searchText', filter);
+			this.tableTemplate.reload(true).subscribe();
+		});
+
+		this.aggregatorService.subscribe(KeyConst.KeywordChanged, (response: any) => {
+			console.log(response.keyword);
+			var filter = response.keyword;
+			this.tableTemplate.setFilter('searchText', filter);
+			this.tableTemplate.reload(true).subscribe();
+
+		});
+	}
 }
